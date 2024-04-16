@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 
+import NotificationContext from '../../store/notification-context'
 import CommentList from './comment-list'
 import NewComment from './new-comment'
 import classes from './comments.module.css'
@@ -9,6 +10,7 @@ function Comments(props) {
 
   const [showComments, setShowComments] = useState(false)
   const [comments, setComments] = useState([])
+  const notificationCtx = useContext(NotificationContext)
 
   useEffect(() => {
     if (showComments) {
@@ -27,6 +29,12 @@ function Comments(props) {
   }
 
   function addCommentHandler(commentData) {
+    notificationCtx.showNotification({
+      title: 'Sending Comments...',
+      message: 'Your comment is being stored comment',
+      status: 'pending'
+    })
+
     fetch('/api/comments/' + eventId, {
       method: 'POST',
       body: JSON.stringify(commentData),
@@ -34,8 +42,29 @@ function Comments(props) {
         'Content-type': 'application/json'
       }
     })
-      .then(response => response.json())
-      .then(data => console.log('Data>>>:', data))
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        }
+        response.json().then(data => {
+          console.log('ERROR:::', data)
+          throw new Error(data.message || '!something went wrong')
+        })
+      })
+      .then(data => {
+        notificationCtx.showNotification({
+          title: 'Success!',
+          message: 'Successgully comment stored',
+          status: 'success'
+        })
+      })
+      .catch(error => {
+        notificationCtx.showNotification({
+          title: 'Error!',
+          message: error.message,
+          status: 'error'
+        })
+      })
   }
 
   return (

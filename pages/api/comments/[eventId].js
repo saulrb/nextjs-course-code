@@ -26,10 +26,10 @@ const handler = async (req, res) => {
       return
     }
     try {
-      insertResult = await insertDocument(client, newComment)
+      insertResult = await insertDocument(client, 'comments', newComment)
       client.close()
     } catch (error) {
-      res.status(500).json({ message: 'Inserting data failed' })
+      res.status(500).json({ message: error.message || 'Inserting data failed' })
       return
     }
 

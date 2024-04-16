@@ -1,4 +1,4 @@
-import { dbConnect, insertDocument } from '../../../helpers/db-utils'
+import { dbConnect, insertDocument } from '../../helpers/db-utils'
 
 const handler = async (req, res) => {
   if (req.method === 'POST') {
@@ -20,7 +20,6 @@ const handler = async (req, res) => {
 
     try {
       insertResult = insertDocument(client, 'emails', { email: userEmail })
-      client.close()
     } catch (error) {
       res.status(500).json({ message: 'Inserting data failed' })
       return
